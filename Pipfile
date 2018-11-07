@@ -1,0 +1,27 @@
+[[source]]
+url = "https://pypi.org/simple"
+verify_ssl = true
+name = "pypi"
+
+[packages]
+aiohttp-devtools = "*"
+aiohttp-session = "*"
+gunicorn = "*"
+uvloop = "*"
+click = "*"
+python-dotenv = "*"
+attrs = "*"
+motor = "*"
+
+[dev-packages]
+ptvsd = "==3.0.0"
+pytest = "==3.3.2"
+pytest-cov = "*"
+pytest-sugar = "*"
+pytest-aiohttp = "*"
+docker = "*"
+invoke = "*"
+aiohttp-devtools = "*"
+
+[requires]
+python_version = "3.6"
