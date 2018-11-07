@@ -11,6 +11,8 @@ by the AIOHTTP_SETTINGS_MODULE environment variable.
 DEBUG = False
 
 
+INSTALLED_APPS = []
+
 DATABASE_URL = None
 DATABASE_NAME = None
 

@@ -1,6 +1,7 @@
 import importlib
 import logging
 import logging.config
+import os
 
 from aiohttp.web import Application
 
@@ -16,6 +17,8 @@ def create_app():
     """Fabric creating web app"""
     from app.utils import settings
 
+    os.environ.setdefault('AIOHTTP_SETTINGS_MODULE', 'config.settings.dev')
+
     app = Application()
     initialize_config(app, settings)
     initialize_db(app)
@@ -29,16 +32,11 @@ def create_app():
 
 def initialize_config(app: Application, settings: LazySettings) -> None:
     logging.config.fileConfig('logging.conf', disable_existing_loggers=False)
-
-    if not settings.configured:
-        settings.configure()
     app['config'] = settings
 
 
 def initialize_db(app: Application) -> None:
-    settings = app['config']
-
-    client, db = connect_db(settings)
+    client, db = connect_db()
 
     app.client = client
     app.db = db
