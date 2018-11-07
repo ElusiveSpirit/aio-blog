@@ -3,6 +3,7 @@
 import os
 import sys
 from functools import wraps
+from subprocess import call
 
 import click
 from aiohttp_debugtoolbar.panels import traceback
@@ -12,6 +13,7 @@ from aiohttp_devtools.logs import setup_logging, main_logger
 from aiohttp_devtools.runserver import runserver as _runserver, run_app, INFER_HOST
 
 from app.utils import settings
+from app.utils.db import drop_db
 
 _dir_existing = click.Path(exists=True, dir_okay=True, file_okay=False)
 _file_dir_existing = click.Path(exists=True, dir_okay=True, file_okay=True)
@@ -59,6 +61,8 @@ def runserver(**config):
     The app path is run directly, see the "--app-factory" option for details on how an app is loaded from a python
     module.
     """
+    os.environ.setdefault('AIOHTTP_SETTINGS_MODULE', 'config.settings.dev')
+
     active_config = {k: v for k, v in config.items() if v is not None}
     setup_logging(config['verbose'])
     try:
@@ -72,9 +76,29 @@ def runserver(**config):
 
 
 @cli.command()
+@click.argument('collection')
+def clear_collection(collection):
+    click.echo(f'Dropping collection {collection}...')
+    drop_db(collection)
+
+
+@cli.command()
+@click.option('--settings', 'settings_module', default='config.settings.test')
+@click.option('-v', '--verbose', is_flag=True, help=verbose_help)
+@click.pass_context
+def test(ctx, settings_module, **config):
+    os.environ.setdefault('AIOHTTP_SETTINGS_MODULE', settings_module)
+    if settings.DATABASE_CLEAR:
+        ctx.invoke(clear_collection, collection=settings.DATABASE_NAME)
+    call(['py.test'])
+
+
+@cli.command()
 @click.option('--ipython', default=True)
 @setup_app_env
 def shell(ipython):
+    os.environ.setdefault('AIOHTTP_SETTINGS_MODULE', 'config.settings.dev')
+
     def run_ipython():
         from IPython import start_ipython
         start_ipython(argv=[])
@@ -95,5 +119,4 @@ def shell(ipython):
 
 
 if __name__ == '__main__':
-    os.environ.setdefault('AIOHTTP_SETTINGS_MODULE', 'config.settings.dev')
     cli()

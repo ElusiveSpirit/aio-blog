@@ -15,3 +15,10 @@ def connect_db() -> tuple:
     settings.db = db
 
     return client, db
+
+
+def drop_db(collection_name: str, db=None) -> None:
+    if db is None:
+        _, db = connect_db()
+
+    db.drop_collection(collection_name)

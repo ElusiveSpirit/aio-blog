@@ -5,7 +5,6 @@ from app.utils.web_response import json_response
 
 
 class UserView(View):
-
     async def get(self):
         user = [u async for u in User.connection.find()]
         return json_response({'users': user}, status=200)
