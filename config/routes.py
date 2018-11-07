@@ -1,7 +1,9 @@
 """Application roots
 """
+from app.apps.auth.views import UserView
 from app.apps.base.views import IndexView
 
 routes = [
-    ('*', '/', IndexView, 'index')
+    ('*', '/user', UserView, 'user'),
+    ('*', '/', IndexView, 'index'),
 ]

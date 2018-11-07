@@ -1,19 +1,23 @@
+import importlib
 import logging
 import logging.config
 
-import motor.motor_asyncio
 from aiohttp.web import Application
 
 from app.plugins import http_session
-from config.routes import routes
+from app.utils import LazySettings
 from app.middlewares.db_handler import db_handler
-from config.settings import Settings
+from app.utils.db import connect_db
+
+logger = logging.getLogger(__name__)
 
 
 def create_app():
     """Fabric creating web app"""
+    from app.utils import settings
+
     app = Application()
-    initialize_config(app)
+    initialize_config(app, settings)
     initialize_db(app)
 
     initialize_routes(app)
@@ -23,19 +27,24 @@ def create_app():
     return app
 
 
-def initialize_config(app: Application) -> None:
+def initialize_config(app: Application, settings: LazySettings) -> None:
     logging.config.fileConfig('logging.conf', disable_existing_loggers=False)
 
-    app['config'] = Settings()
+    if not settings.configured:
+        settings.configure()
+    app['config'] = settings
 
 
 def initialize_db(app: Application) -> None:
-    config = app['config']
+    settings = app['config']
 
-    app.client = motor.motor_asyncio.AsyncIOMotorClient(config.DATABASE_URL)
-    app.db = app.client[config.DATABASE_NAME]
+    client, db = connect_db(settings)
+
+    app.client = client
+    app.db = db
 
     app.on_cleanup.append(close_db)
+    initialize_models(app)
 
 
 async def close_db(app: Application) -> None:
@@ -43,7 +52,20 @@ async def close_db(app: Application) -> None:
     await app.shutdown()
 
 
+def initialize_models(app: Application) -> None:
+    settings = app['config']
+
+    def init_models(app_name: str) -> None:
+        module_name = __name__.split('.')[0] + '.apps.' + app_name
+        logger.info(f'Import module {module_name}')
+        importlib.import_module(module_name)
+
+    for app_name in settings.INSTALLED_APPS:
+        init_models(app_name)
+
+
 def initialize_routes(app: Application) -> None:
+    from config.routes import routes
     api_prefix = app['config'].API_PREFIX
 
     for route in routes:

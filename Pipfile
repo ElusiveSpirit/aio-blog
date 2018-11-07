@@ -22,6 +22,7 @@ pytest-aiohttp = "*"
 docker = "*"
 invoke = "*"
 aiohttp-devtools = "*"
+ipython = "*"
 
 [requires]
 python_version = "3.6"
