@@ -4,6 +4,7 @@ __all__ = ['Model']
 
 
 class ModelMetaClass(type):
+
     def __new__(mcs, name, bases, attrs):
         new_class = super(ModelMetaClass, mcs).__new__(mcs, name, bases, attrs)
         new_class._meta = getattr(new_class, 'Meta')

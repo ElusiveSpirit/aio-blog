@@ -19,6 +19,7 @@ class LazySettings(LazyObject):
     The user can manually configure settings prior to using them. Otherwise,
     uses the settings module pointed to by AIOHTTP_SETTINGS_MODULE.
     """
+
     def _setup(self, name=None):
         """
         Load the settings module pointed to by the environment variable. This
@@ -31,8 +32,7 @@ class LazySettings(LazyObject):
             raise ImproperlyConfigured(
                 "Requested %s, but settings are not configured. "
                 "You must either define the environment variable %s "
-                "or call settings.configure() before accessing settings."
-                % (desc, ENVIRONMENT_VARIABLE))
+                "or call settings.configure() before accessing settings." % (desc, ENVIRONMENT_VARIABLE))
 
         self._wrapped = Settings(settings_module)
 
@@ -88,6 +88,7 @@ class LazySettings(LazyObject):
 
 
 class Settings:
+
     def __init__(self, settings_module):
         # update this dict from global settings (but only for ALL_CAPS settings)
         for setting in dir(global_settings):
@@ -109,8 +110,7 @@ class Settings:
             if setting.isupper():
                 setting_value = getattr(mod, setting)
 
-                if (setting in tuple_settings and
-                        not isinstance(setting_value, (list, tuple))):
+                if (setting in tuple_settings and not isinstance(setting_value, (list, tuple))):
                     raise ImproperlyConfigured("The %s setting must be a list or a tuple. " % setting)
                 setattr(self, setting, setting_value)
                 self._explicit_settings.add(setting)
@@ -122,8 +122,8 @@ class Settings:
             # When we can, attempt to validate the timezone. If we can't find
             # this file, no check happens and it's harmless.
             zoneinfo_root = '/usr/share/zoneinfo'
-            if (os.path.exists(zoneinfo_root) and not
-                    os.path.exists(os.path.join(zoneinfo_root, *(self.TIME_ZONE.split('/'))))):
+            if (os.path.exists(zoneinfo_root) and
+                    not os.path.exists(os.path.join(zoneinfo_root, *(self.TIME_ZONE.split('/'))))):
                 raise ValueError("Incorrect timezone setting: %s" % self.TIME_ZONE)
             # Move the time zone info into os.environ. See ticket #2315 for why
             # we don't do this unconditionally (breaks Windows).
@@ -169,10 +169,7 @@ class UserSettingsHolder:
             super().__delattr__(name)
 
     def __dir__(self):
-        return sorted(
-            s for s in list(self.__dict__) + dir(self.default_settings)
-            if s not in self._deleted
-        )
+        return sorted(s for s in list(self.__dict__) + dir(self.default_settings) if s not in self._deleted)
 
     def is_overridden(self, setting):
         deleted = (setting in self._deleted)

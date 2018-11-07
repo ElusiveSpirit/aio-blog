@@ -7,8 +7,10 @@ from functools import total_ordering, wraps
 # to classes and returns bound instances, whereas functools.partial (on
 # CPython) is a type and its instances don't bind.
 def curry(_curried_func, *args, **kwargs):
+
     def _curried(*moreargs, **morekwargs):
         return _curried_func(*(args + moreargs), **dict(kwargs, **morekwargs))
+
     return _curried
 
 
@@ -20,6 +22,7 @@ class cached_property:
     Optional ``name`` argument allows you to make cached properties of other
     methods. (e.g.  url = cached_property(get_absolute_url, name='url') )
     """
+
     def __init__(self, func, name=None):
         self.func = func
         self.__doc__ = getattr(func, '__doc__')
@@ -70,10 +73,7 @@ def lazy(func, *resultclasses):
             self.__prepared = True
 
         def __reduce__(self):
-            return (
-                _lazy_proxy_unpickle,
-                (func, self.__args, self.__kw) + resultclasses
-            )
+            return (_lazy_proxy_unpickle, (func, self.__args, self.__kw) + resultclasses)
 
         def __repr__(self):
             return repr(self.__cast())
@@ -91,8 +91,8 @@ def lazy(func, *resultclasses):
                         setattr(cls, method_name, meth)
             cls._delegate_bytes = bytes in resultclasses
             cls._delegate_text = str in resultclasses
-            assert not (cls._delegate_bytes and cls._delegate_text), (
-                "Cannot call lazy() with both bytes and text return types.")
+            assert not (cls._delegate_bytes and
+                        cls._delegate_text), ("Cannot call lazy() with both bytes and text return types.")
             if cls._delegate_text:
                 cls.__str__ = cls.__text_cast
             elif cls._delegate_bytes:
@@ -106,6 +106,7 @@ def lazy(func, *resultclasses):
                 # applies the given magic method of the result type.
                 res = func(*self.__args, **self.__kw)
                 return getattr(res, method_name)(*args, **kw)
+
             return __wrapper__
 
         def __text_cast(self):
@@ -195,7 +196,9 @@ def keep_lazy(*resultclasses):
             else:
                 return func(*args, **kwargs)
             return lazy_func(*args, **kwargs)
+
         return wrapper
+
     return decorator
 
 
@@ -210,10 +213,12 @@ empty = object()
 
 
 def new_method_proxy(func):
+
     def inner(self, *args):
         if self._wrapped is empty:
             self._setup()
         return func(self._wrapped, *args)
+
     return inner
 
 
@@ -333,6 +338,7 @@ class SimpleLazyObject(LazyObject):
     Designed for compound objects of unknown type. For builtins or objects of
     known type, use django.utils.functional.lazy.
     """
+
     def __init__(self, func):
         """
         Pass in a callable that returns the object to be wrapped.

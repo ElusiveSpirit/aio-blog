@@ -7,9 +7,7 @@ by the AIOHTTP_SETTINGS_MODULE environment variable.
 # CORE             #
 ####################
 
-
 DEBUG = False
-
 
 INSTALLED_APPS = []
 

@@ -1,6 +1,6 @@
 import motor.motor_asyncio
 
-from app.utils import LazySettings, settings
+from app.utils import settings
 
 
 def connect_db() -> tuple:

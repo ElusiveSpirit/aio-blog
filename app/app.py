@@ -5,9 +5,9 @@ import os
 
 from aiohttp.web import Application
 
+from app.middlewares.db_handler import db_handler
 from app.plugins import http_session
 from app.utils import LazySettings
-from app.middlewares.db_handler import db_handler
 from app.utils.db import connect_db
 
 logger = logging.getLogger(__name__)
